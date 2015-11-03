@@ -8,39 +8,66 @@ var React = require('react-native');
 var {
   AppRegistry,
   StyleSheet,
+  BackAndroid,
+  Navigator,
   Text,
   View,
+  StyleSheet,
+  ToolbarAndroid,
+  ToastAndroid,
 } = React;
 
+var ToolbarAndroid = require("ToolbarAndroid");
+var MainScreen = require('./MainScreen');
+
+var _navigator;
+BackAndroid.addEventListener('hardwareBackPress', function() {
+  if (_navigator && _navigator.getCurrentRoutes().length > 1) {
+    _navigator.pop();
+    return true;
+  }
+  return false;
+});
+
+
 var civil = React.createClass({
+  RouteMapper: function(route, navigationOperations, onComponentRef) {
+    _navigator = navigationOperations;
+    if (route.name === 'home') {
+      return (
+        <View style={styles.container}>
+            <MainScreen navigator={navigationOperations}/> 
+        </View>
+      );
+    } else if (route.name === 'story') {
+      return (
+        <View style={styles.container}>
+        /*
+          <StoryScreen
+            style={{flex: 1}}
+            navigator={navigationOperations}
+            story={route.story} />*/
+        </View>
+      );
+    }
+  },
+
   render: function() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
-    );
+   var initialRoute = {name: 'home'};
+      return (
+        <Navigator
+          style={styles.container}
+          initialRoute={initialRoute}
+          configureScene={() => Navigator.SceneConfigs.FadeAndroid}
+          renderScene={this.RouteMapper}/>
+      );
   }
 });
 
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+    flexDirection: 'column',
   },
   instructions: {
     textAlign: 'center',
