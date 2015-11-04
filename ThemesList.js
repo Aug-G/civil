@@ -13,6 +13,14 @@ var {
   TouchableHighlight,
 } = React
 
+var themes =  [
+  {'name':'Floor', 'icon': 'image!home'},
+  {'name':'Roof', 'icon': 'image!home'},
+  {'name':'Struct', 'icon': 'image!home'},
+  {'name':'Door', 'icon': 'image!home'},
+  {'name':'Key', 'icon': 'image!home'},
+];      
+
 var DataRepository = require('./DataRepository');
 
 var repository = new DataRepository();
@@ -32,24 +40,14 @@ var ThemesList = React.createClass({
     this.fetchThemes();
   },
   fetchThemes: function() {
-    repository.getThemes()
-      .then((themes) => {
-        this.setState({
-          isLoading: false,
-          dataSource: this.state.dataSource.cloneWithRows(themes),
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          isLoading: false,
-          dataSource: this.state.dataSource,
-        });
-      })
-      .done();
+   this.setState({
+      isLoading: false,
+      dataSource: this.state.dataSource.cloneWithRows(themes)
+   }) 
   },
   renderHeader: function() {
     var TouchableElement = TouchableHighlight;
-    if (Platform.OS === 'android') {
+    if (Platform.OS === 'android')  {
       TouchableElement = TouchableNativeFeedback;
     }
     return(
@@ -65,28 +63,6 @@ var ThemesList = React.createClass({
               </Text>
             </View>
           </TouchableElement>
-          <View style={styles.row}>
-            <TouchableElement>
-              <View style={styles.menuContainer}>
-                <Image
-                  source={require('image!ic_favorites_white')}
-                  style={{width: 30, height: 30}} />
-                <Text style={styles.menuText}>
-                  我的收藏
-                </Text>
-              </View>
-            </TouchableElement>
-            <TouchableElement>
-              <View style={styles.menuContainer}>
-              <Image
-                source={require('image!ic_download_white')}
-                style={{width: 30, height: 30}} />
-                <Text style={styles.menuText}>
-                  离线下载
-                </Text>
-              </View>
-            </TouchableElement>
-          </View>
         </View>
         <TouchableElement onPress={() => this.props.onSelectItem(null)}>
           <View style={styles.themeItem}>
@@ -107,10 +83,13 @@ var ThemesList = React.createClass({
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void,
   ) {
+
     var TouchableElement = TouchableHighlight;
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
     }
+    console.log(theme.icon);
+    var icon = require(theme.icon);
     return (
       <View>
         <TouchableElement
@@ -118,11 +97,10 @@ var ThemesList = React.createClass({
           onShowUnderlay={highlightRowFunc}
           onHideUnderlay={highlightRowFunc}>
           <View style={styles.themeItem}>
-            <Image source={them.icon} style={styles.themeIndicate}/>
+            <Image source={icon} style={styles.themeIndicate}/>
             <Text style={styles.themeName}>
               {theme.name}
             </Text>
-           
           </View>
         </TouchableElement>
       </View>

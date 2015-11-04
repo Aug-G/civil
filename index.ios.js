@@ -10,6 +10,8 @@ var {
   StyleSheet,
   Text,
   View,
+  TouchableNativeFeedback,
+  TouchableHighlight,
 } = React;
 
 var civil = React.createClass({

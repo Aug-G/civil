@@ -228,28 +228,32 @@ DataRepository.prototype.getThemes = function(
       }
     })
     .catch((error) => {
-      console.error(error);
       var themes = [
-            {name:'Floor', 'icon': 'image!ic_menu_arrow'},
-            {name:'Roof', 'icon': 'image!ic_menu_arrow'},
-            {name:'Struct', 'icon': 'image!ic_menu_arrow'},
-            {name:'Door', 'icon': 'image!ic_menu_arrow'},
-            {name:'Key', 'icon': 'image!ic_menu_arrow'},
+            {'name':'Floor', 'icon': 'image!ic_menu_arrow'},
+            {'name':'Roof', 'icon': 'image!ic_menu_arrow'},
+            {'name':'Struct', 'icon': 'image!ic_menu_arrow'},
+            {'name':'Door', 'icon': 'image!ic_menu_arrow'},
+            {'name':'Key', 'icon': 'image!ic_menu_arrow'},
       ];
-      AsyncStorage.setItem(KEY_THEMES, themes);
+      AsyncStorage.setItem(KEY_THEMES, JSON.stringify(themes));
       return themes; 
     })
     .then((responseData) => {
+     return [
+            {'name':'Floor', 'icon': 'image!home'},
+            {'name':'Roof', 'icon': 'image!home'},
+            {'name':'Struct', 'icon': 'image!home'},
+            {'name':'Door', 'icon': 'image!home'},
+            {'name':'Key', 'icon': 'image!home'},
+      ];      
       var themes = [];
-      if (responseData.subscribed) {
-        var len = responseData.subscribed.length;
-        var theme
-        for (var i = 0; i < len.length; i++) {
-          theme = responseData.subscribed[i];
-          theme.subscribed = true;
-          themes.push(theme);
-        }
+      console.log(themes);
+      for (var i = 0; i < responseData.length; i++) {
+        theme = responseData[i];
+        themes.push(theme);
       }
+
+      console.log(themes);
       if (responseData.others) {
         themes = themes.concat(responseData.others);
       }

@@ -16,7 +16,6 @@ var {
 } = React;
 
 var Drawer = require('react-native-drawer');
-var StoriesList = require('./StoriesList');
 var ThemesList = require('./ThemesList');
 var SwipeRefreshLayoutAndroid = require('./SwipeRereshLayout');
 
@@ -71,8 +70,6 @@ var MainScreen = React.createClass({
           <SwipeRefreshLayoutAndroid
             ref={(swipeRefreshLayout) => { this.swipeRefreshLayout = swipeRefreshLayout; }}
             onRefresh={this.onRefresh}>
-            <StoriesList theme={this.state.theme} navigator={this.props.navigator}
-              onRefreshFinish={this.onRefreshFinish}/>
           </SwipeRefreshLayoutAndroid>
         </View>
       </DrawerLayoutAndroid>

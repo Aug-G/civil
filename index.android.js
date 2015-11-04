@@ -19,6 +19,7 @@ var {
 
 var ToolbarAndroid = require("ToolbarAndroid");
 var MainScreen = require('./MainScreen');
+var  Login = require('./Login'); 
 
 var _navigator;
 BackAndroid.addEventListener('hardwareBackPress', function() {
@@ -31,6 +32,11 @@ BackAndroid.addEventListener('hardwareBackPress', function() {
 
 
 var civil = React.createClass({
+  getInitialState: function() {
+    return {
+      isLogin: false 
+    };
+  },
   RouteMapper: function(route, navigationOperations, onComponentRef) {
     _navigator = navigationOperations;
     if (route.name === 'home') {
@@ -54,6 +60,7 @@ var civil = React.createClass({
 
   render: function() {
    var initialRoute = {name: 'home'};
+    if(this.state.isLogin){
       return (
         <Navigator
           style={styles.container}
@@ -61,6 +68,11 @@ var civil = React.createClass({
           configureScene={() => Navigator.SceneConfigs.FadeAndroid}
           renderScene={this.RouteMapper}/>
       );
+    }else{
+      return (
+        <Login />
+      );
+    }
   }
 });
 
