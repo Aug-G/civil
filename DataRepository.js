@@ -6,17 +6,22 @@ var {
   AsyncStorage,
 } = React;
 
+var API_URL = "http://180.169.17.3:8081/civil/api";
+var API_LOGIN = API_URL + "/user/login";
+
 var API_COVER_URL = "http://news-at.zhihu.com/api/4/start-image/1080*1776";
 var API_LATEST_URL = 'http://news-at.zhihu.com/api/4/news/latest';
 var API_HOME_URL = 'http://news.at.zhihu.com/api/4/news/before/';
 var API_THEME_URL = 'http://news-at.zhihu.com/api/4/theme/';
 var API_THEMES_URL = 'http://news-at.zhihu.com/api/4/themes';
 
+
 var KEY_COVER = '@Cover';
 var KEY_THEMES = '@Themes:';
 var KEY_HOME_LIST = '@HomeList:';
 var KEY_THEME_LIST = '@ThemeList:';
 var KEY_THEME_TOPDATA = '@ThemeTop:';
+var KEY_USER_INFO = '@UserInfo';
 
 function parseDateFromYYYYMMdd(str) {
   if (!str) return new Date();
@@ -52,10 +57,10 @@ DataRepository.prototype._safeStorage = function(key: string) {
   });
 };
 
-DataRepository.prototype._safeFetch = function(reqUrl: string) {
+DataRepository.prototype._safeFetch = function(reqUrl: string, options) {
   console.log('reqUrl', reqUrl);
   return new Promise((resolve, reject) => {
-    fetch(reqUrl)
+    fetch(reqUrl, options)
       .then((response) => response.json())
       .then((responseData) => {
         //console.log(responseData);
@@ -261,6 +266,35 @@ DataRepository.prototype.getThemes = function(
     });
 
 };
+
+DataRepository.prototype.getUser = function(callback?: ?(error: ?Error, result: ?Object) => void){
+    return this._safeStorage(KEY_USER_INFO);
+}
+
+DataRepository.prototype.login = function(username: string, password: string,
+  callback?: ?(error: ?Error, result: ?Object) => void){
+    return this._safeFetch(API_LOGIN, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+        })
+    }).then((result) => {
+        if(result){
+            AsyncStorage.setItem(KEY_USER_INFO, JSON.stringify(result));
+            return result;
+        }else{
+            throw new Error('错误')
+        }
+    }).catch((error) =>{
+        console.log(error);
+    });
+
+}
 
 DataRepository.prototype._mergeReadState = function(src, dst) {
 

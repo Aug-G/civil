@@ -19,8 +19,13 @@ var Login = React.createClass({
 	getInitialState: function() {
 		return {
 			username: '',
-			password:'' 
+			password: '', 
+			message: '',
 		};
+	},
+
+	onLogin : function(){
+
 	},
 
 	render: function() {
@@ -28,14 +33,32 @@ var Login = React.createClass({
 		if (Platform.OS === 'android'){
 			TouchableElement = TouchableNativeFeedback;
 		}
+
 		return (
 			<View style={styles.container}>
 				<View style={styles.content}>
 					<View style={styles.header}>
-						<Text style={styles.logo}>登录</Text>
+						<Text style={styles.logo}>请输入</Text>
 					</View>
-					<TextInput style={styles.input}  placeholder="用户名"  placeholderTextColor="#FFF"/>	
-					<TextInput style={styles.input}  placeholder="密码"  placeholderTextColor="#FFF"/>
+
+					<View style={styles.errors} >
+						<Text style={styles.message}>错误提醒</Text>
+					</View>
+
+
+					<TextInput 
+						style={styles.input}  
+						placeholder="用户名"
+						value = {this.state.username}
+						onChangeText = {(username) => this.setState({username})}  />
+
+
+					<TextInput 
+						password={true}
+						style={styles.input}
+						placeholder="密码" 
+						value = {this.state.password}
+						onChangeText = {(password) => this.setState({password})}  />
 
 					<TouchableElement >
 					 	<View style={styles.login}>
@@ -51,7 +74,7 @@ var Login = React.createClass({
 var styles = StyleSheet.create({
 	container:{
 		flex: 1,
-		backgroundColor: '#00a2ed',
+		backgroundColor: '#FFF',
 	},
 	content:{
 		marginLeft:30,
@@ -59,24 +82,34 @@ var styles = StyleSheet.create({
 	},
 	header:{
 		alignSelf:'center',
-		marginTop: 100,
-	},
-	logo:{
-		fontSize:36,
-		color: '#FAFAFA'		
+		marginTop: 50,
 	},
 
-	input:{
+	logo:{
+		fontSize:36,
+		color: '#00a2ed',		
+		fontWeight: "bold",
+	},
+	errors:{
+		backgroundColor: '#F06292',
+		padding:10,
+		marginTop: 10,
+		marginBottom: 10,
+	},
+	
+	message:{
 		color: '#FFF',
+		fontSize: 14,
+	},
+	
+	input:{
 		fontSize:14,
-		borderColor: '#FFF',
-		borderWidth:1,
 		marginTop: 10,
 		marginBottom: 10,
 	},
 
 	login:{
-		backgroundColor: '#0D47A1',
+		backgroundColor: '#00a2ed',
 		marginTop: 10,
 		marginBottom:10,
 		padding:10,
@@ -84,7 +117,8 @@ var styles = StyleSheet.create({
 	loginText:{
 		color: '#FFF',
 		alignSelf: 'center',
-		fontSize:20
+		fontSize:20,
+		fontWeight: "bold",
 	},
 });
 
