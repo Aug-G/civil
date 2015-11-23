@@ -13,7 +13,8 @@ var {
   	TouchableHighlight,
 } = React;
 
-
+var DataRepository = require('./DataRepository');
+var repository = DataRepository();
 
 var Login = React.createClass({
 	getInitialState: function() {
@@ -25,13 +26,33 @@ var Login = React.createClass({
 	},
 
 	onLogin : function(){
-
+		repository.login(this.state.username, this.state.password)
+		.then((response) => {
+			if(!response.errorMessage){	
+				this.props.loginSuccess();
+			}else{
+				this.setState({
+					message: response.errorMessage,
+				})
+			}
+		}).catch((error) =>{
+			console.log(error);
+		});
 	},
+
+	
 
 	render: function() {
 		var TouchableElement = TouchableHighlight;
 		if (Platform.OS === 'android'){
 			TouchableElement = TouchableNativeFeedback;
+		}
+
+		var error = null; 
+		if (this.state.message){
+			error = (<View style={styles.errors} >
+						<Text style={styles.message}>{this.state.message}</Text>
+					</View>);
 		}
 
 		return (
@@ -41,10 +62,7 @@ var Login = React.createClass({
 						<Text style={styles.logo}>请输入</Text>
 					</View>
 
-					<View style={styles.errors} >
-						<Text style={styles.message}>错误提醒</Text>
-					</View>
-
+					{error}	
 
 					<TextInput 
 						style={styles.input}  
@@ -60,7 +78,7 @@ var Login = React.createClass({
 						value = {this.state.password}
 						onChangeText = {(password) => this.setState({password})}  />
 
-					<TouchableElement >
+					<TouchableElement onPress={() => this.onLogin()} >
 					 	<View style={styles.login}>
 					 		<Text style={styles.loginText}>登录</Text>
 					 	</View>

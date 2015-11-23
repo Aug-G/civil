@@ -4,6 +4,7 @@
  */
 'use strict';
 
+
 var React = require('react-native');
 var {
   AppRegistry,
@@ -19,7 +20,12 @@ var {
 
 var ToolbarAndroid = require("ToolbarAndroid");
 var MainScreen = require('./MainScreen');
-var  Login = require('./Login'); 
+var Login = require('./Login');
+var DataRepository = require('./DataRepository');
+var repository = DataRepository();
+var StoryDetail = require('./StoryDetail');
+var StoryAdd = require('./StoryAdd');
+var ProjectList = require('./ProjectList');
 
 var _navigator;
 BackAndroid.addEventListener('hardwareBackPress', function() {
@@ -34,25 +40,57 @@ BackAndroid.addEventListener('hardwareBackPress', function() {
 var civil = React.createClass({
   getInitialState: function() {
     return {
-      isLogin: false 
+      isLogin: false,
     };
   },
+  loginSuccess: function(){
+    console.log(this.state.isLogin);
+    this.setState({
+      isLogin: true,
+    });
+  },
+  loginFault: function(error, result){
+    console.log(error, result);
+    this.setState({
+      isLogin: false,
+    })
+  },
+
+  componentWillMount: function(){
+    repository.getUser().then((userInfo) => {
+       if(userInfo.token){
+         this.loginSuccess();
+       } 
+    });
+   },
+
   RouteMapper: function(route, navigationOperations, onComponentRef) {
     _navigator = navigationOperations;
     if (route.name === 'home') {
       return (
         <View style={styles.container}>
-            <MainScreen navigator={navigationOperations}/> 
+            <MainScreen loginFault={this.loginFault} navigator={navigationOperations}/> 
         </View>
       );
     } else if (route.name === 'story') {
       return (
         <View style={styles.container}>
-        /*
-          <StoryScreen
+          <StoryDetail
             style={{flex: 1}}
             navigator={navigationOperations}
-            story={route.story} />*/
+            story={route.story} />
+        </View>
+      );
+    } else if(route.name === 'add_story'){
+      return (
+        <View style={styles.container}>
+          <StoryAdd style={{flex:1}} navigator={navigationOperations} title={route.title}/>
+        </View>
+      );
+    }else if(route.name === 'project'){
+      return (
+        <View style={styles.container}>
+          <ProjectList loginFault={this.loginFault}  style={{flex:1}} navigator={navigationOperations} onSelectProjet={route.onSelectProjet}/>
         </View>
       );
     }
@@ -70,7 +108,7 @@ var civil = React.createClass({
       );
     }else{
       return (
-        <Login />
+        <Login loginSuccess={this.loginSuccess}/>
       );
     }
   }

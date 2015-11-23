@@ -6,8 +6,10 @@ var {
   AsyncStorage,
 } = React;
 
-var API_URL = "http://180.169.17.3:8081/civil/api";
+var API_URL = "http://192.168.2.107:8080/api";
 var API_LOGIN = API_URL + "/user/login";
+var API_OBJECTS = API_URL+"/declare/";
+var API_PROJECT = API_URL + "/project";
 
 var API_COVER_URL = "http://news-at.zhihu.com/api/4/start-image/1080*1776";
 var API_LATEST_URL = 'http://news-at.zhihu.com/api/4/news/latest';
@@ -57,17 +59,16 @@ DataRepository.prototype._safeStorage = function(key: string) {
   });
 };
 
-DataRepository.prototype._safeFetch = function(reqUrl: string, options) {
-  console.log('reqUrl', reqUrl);
+DataRepository.prototype._safeFetch = function(reqUrl: string, options?: Object) {
+  console.log('reqUrl', reqUrl, options);
   return new Promise((resolve, reject) => {
     fetch(reqUrl, options)
       .then((response) => response.json())
       .then((responseData) => {
-        //console.log(responseData);
         resolve(responseData);
       })
       .catch((error) => {
-        console.error(error);
+        console.warn(error);
         resolve(null);
       });
   });
@@ -221,58 +222,14 @@ DataRepository.prototype.saveStories = function(themeList: object, topData: obje
   AsyncStorage.multiSet(keyValuePairs, callback);
 };
 
-DataRepository.prototype.getThemes = function(
-  callback?: ?(error: ?Error, result: ?Object) => void
-) {
-  return this._safeStorage(KEY_THEMES)
-    .then((result) => {
-      if (!result) {
-        throw new Error('No themes')
-      } else {
-        return result;
-      }
-    })
-    .catch((error) => {
-      var themes = [
-            {'name':'Floor', 'icon': 'image!ic_menu_arrow'},
-            {'name':'Roof', 'icon': 'image!ic_menu_arrow'},
-            {'name':'Struct', 'icon': 'image!ic_menu_arrow'},
-            {'name':'Door', 'icon': 'image!ic_menu_arrow'},
-            {'name':'Key', 'icon': 'image!ic_menu_arrow'},
-      ];
-      AsyncStorage.setItem(KEY_THEMES, JSON.stringify(themes));
-      return themes; 
-    })
-    .then((responseData) => {
-     return [
-            {'name':'Floor', 'icon': 'image!home'},
-            {'name':'Roof', 'icon': 'image!home'},
-            {'name':'Struct', 'icon': 'image!home'},
-            {'name':'Door', 'icon': 'image!home'},
-            {'name':'Key', 'icon': 'image!home'},
-      ];      
-      var themes = [];
-      console.log(themes);
-      for (var i = 0; i < responseData.length; i++) {
-        theme = responseData[i];
-        themes.push(theme);
-      }
-
-      console.log(themes);
-      if (responseData.others) {
-        themes = themes.concat(responseData.others);
-      }
-      return themes;
-    });
-
-};
 
 DataRepository.prototype.getUser = function(callback?: ?(error: ?Error, result: ?Object) => void){
     return this._safeStorage(KEY_USER_INFO);
-}
+};
 
 DataRepository.prototype.login = function(username: string, password: string,
-  callback?: ?(error: ?Error, result: ?Object) => void){
+  callback?: ?(error: ?Error, result: ?Object) => void
+  ){
     return this._safeFetch(API_LOGIN, {
         method: 'POST',
         headers: {
@@ -284,17 +241,48 @@ DataRepository.prototype.login = function(username: string, password: string,
             password: password,
         })
     }).then((result) => {
-        if(result){
+        if(!result.errorMessage){
             AsyncStorage.setItem(KEY_USER_INFO, JSON.stringify(result));
-            return result;
-        }else{
-            throw new Error('错误')
         }
+        return result;
     }).catch((error) =>{
         console.log(error);
     });
 
+};
+
+
+DataRepository.prototype._GET = function(url, callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._safeStorage(KEY_USER_INFO)
+    .then((userInfo) => {
+        return this._safeFetch(url, {
+            headers:{
+                'Accept': 'application/json',
+                'Authorization': userInfo.token
+            }
+        }).then((result) => {
+            if(result){
+                return result;
+            }else{
+                callback && callback(new Error('登陆错误'), result);
+            }
+        }).catch((error) =>{
+            console.log(error);
+        });
+    }).catch((error) =>{
+        console.log(error);
+    });
 }
+
+DataRepository.prototype.getObjects = function(type: string, action: string, page: int,
+    callback?: ?(error: ?Error, result: ?Object) => void){
+    return this._GET(API_OBJECTS+type+"/list/"+action+"?page="+page, callback);
+}
+
+DataRepository.prototype.getProjects = function(callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._GET(API_PROJECT, callback);
+}
+
 
 DataRepository.prototype._mergeReadState = function(src, dst) {
 

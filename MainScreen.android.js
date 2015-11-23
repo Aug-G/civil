@@ -17,25 +17,57 @@ var {
 
 var Drawer = require('react-native-drawer');
 var ThemesList = require('./ThemesList');
+var StoryList = require('./StoryList');
 var SwipeRefreshLayoutAndroid = require('./SwipeRereshLayout');
 
 var DRAWER_REF = 'drawer';
 var DRAWER_WIDTH_LEFT = 56;
 var toolbarActions = [
-  {title: '提醒', icon: require('image!ic_message_white'), show: 'always'},
+  {title: '管理', show: 'always',showWithText:true},
   {title: '夜间模式', show: 'never'},
   {title: '设置选项', show: 'never'},
+];
+
+var declareToolbar = [
+  {title: 'declare', show: 'always', icon:require('image!ic_dashboard_white_24dp')},
+  {title: 'add', show: 'always', icon:require('image!ic_add_circle_outline_white_24dp')},
+];
+  
+
+var managementToolbar  =[
+  {title: 'management', show: 'always',icon:require('image!ic_file_upload_white_24dp')},
 ];
 
 var MainScreen = React.createClass({
   getInitialState: function() {
     return ({
-      theme: null,
+      toolbarActions: declareToolbar,
+      action: 'declare',
+      theme: {'name':'底板', 'icon': 'image!home', 'key': 'floor'},
     });
   },
   onSelectTheme: function(theme) {
     this.refs[DRAWER_REF].closeDrawer();
     this.setState({theme: theme});
+  },
+  onActionSelected: function(position){
+      console.log(position);
+      switch(position){
+        case 0:
+          var isDeclare = this.state.action == 'declare';
+          var toolbarActions =  !isDeclare ? declareToolbar: managementToolbar;
+          this.setState({
+            action: !isDeclare ? 'declare': 'management',
+            toolbarActions: toolbarActions,
+          })
+          break;
+        case 1:
+          this.props.navigator.push({
+            name: 'add_story',
+            title: this.state.theme.name,
+          });
+          break;
+      }
   },
   _renderNavigationView: function() {
     return (
@@ -50,8 +82,10 @@ var MainScreen = React.createClass({
     this.swipeRefreshLayout && this.swipeRefreshLayout.finishRefresh();
   },
   render: function() {
-    var title = this.state.theme ? this.state.theme.name : '首页';
+    var action = this.state.action =='declare'? '申报': '管理';
+    var title = this.state.theme ? this.state.theme.name + action : '首页';
     return (
+
       <DrawerLayoutAndroid
         ref={DRAWER_REF}
         drawerWidth={Dimensions.get('window').width - DRAWER_WIDTH_LEFT}
@@ -64,13 +98,16 @@ var MainScreen = React.createClass({
             title={title}
             titleColor="white"
             style={styles.toolbar}
-            actions={toolbarActions}
+            actions={this.state.toolbarActions}
             onIconClicked={() => this.refs[DRAWER_REF].openDrawer()}
             onActionSelected={this.onActionSelected} />
           <SwipeRefreshLayoutAndroid
             ref={(swipeRefreshLayout) => { this.swipeRefreshLayout = swipeRefreshLayout; }}
             onRefresh={this.onRefresh}>
+            <StoryList theme={this.state.theme} action={this.state.action} loginFault={this.props.loginFault} navigator={this.props.navigator}
+              onRefreshFinish={this.onRefreshFinish}/>
           </SwipeRefreshLayoutAndroid>
+
         </View>
       </DrawerLayoutAndroid>
 

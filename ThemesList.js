@@ -14,11 +14,11 @@ var {
 } = React
 
 var themes =  [
-  {'name':'Floor', 'icon': 'image!home'},
-  {'name':'Roof', 'icon': 'image!home'},
-  {'name':'Struct', 'icon': 'image!home'},
-  {'name':'Door', 'icon': 'image!home'},
-  {'name':'Key', 'icon': 'image!home'},
+  {'name':'底板', 'icon': 'image!home', 'key': 'floor'},
+  {'name':'墙板', 'icon': 'image!home', 'key': 'wall'},
+  {'name':'顶板', 'icon': 'image!home', 'key': 'roof'},
+  {'name':'结构验收', 'icon': 'image!home', 'key': 'struct'},
+  {'name':'竣工验收', 'icon': 'image!home', 'key': 'complet'},
 ];      
 
 var DataRepository = require('./DataRepository');
@@ -30,14 +30,21 @@ var ThemesList = React.createClass({
     var dataSource = new ListView.DataSource({
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
-
     return {
       isLoading: false,
       dataSource: dataSource,
+      userInfo: null
     };
   },
   componentDidMount: function() {
     this.fetchThemes();
+    repository.getUser().then((userInfo) => {
+      if(userInfo.token){
+        this.setState({
+          userInfo: userInfo
+        });
+      }
+    });
   },
   fetchThemes: function() {
    this.setState({
@@ -53,27 +60,15 @@ var ThemesList = React.createClass({
     return(
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <TouchableElement>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 16}}>
               <Image
                 source={require('image!comment_avatar')}
                 style={{width: 40, height: 40, marginLeft: 8, marginRight: 8}} />
               <Text style={styles.menuText}>
-                请登录
+                {this.state.userInfo ? this.state.userInfo.realname: ''}
               </Text>
             </View>
-          </TouchableElement>
         </View>
-        <TouchableElement onPress={() => this.props.onSelectItem(null)}>
-          <View style={styles.themeItem}>
-            <Image
-              source={require('image!home')}
-              style={{width: 30, height: 30, marginLeft: 10}} />
-            <Text style={styles.homeTheme}>
-              首页
-            </Text>
-          </View>
-        </TouchableElement>
       </View>
     );
   },
@@ -88,8 +83,8 @@ var ThemesList = React.createClass({
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
     }
-    console.log(theme.icon);
-    var icon = require(theme.icon);
+    var icon = require("image!ic_menu_arrow");
+
     return (
       <View>
         <TouchableElement
@@ -97,10 +92,11 @@ var ThemesList = React.createClass({
           onShowUnderlay={highlightRowFunc}
           onHideUnderlay={highlightRowFunc}>
           <View style={styles.themeItem}>
-            <Image source={icon} style={styles.themeIndicate}/>
             <Text style={styles.themeName}>
-              {theme.name}
+              {theme.name}申报与管理
             </Text>
+
+            <Image source={icon} style={styles.themeIndicate}/>
           </View>
         </TouchableElement>
       </View>
@@ -118,8 +114,7 @@ var ThemesList = React.createClass({
           keyboardShouldPersistTaps={true}
           showsVerticalScrollIndicator={false}
           renderHeader={this.renderHeader}
-          style={{flex:1, backgroundColor: 'white'}}
-        />
+          style={{flex:1, backgroundColor: 'white'}}/>
       </View>
     );
   },
@@ -167,6 +162,7 @@ var styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     marginLeft: 16,
+    fontWeight:"bold"
   },
   themeIndicate: {
     marginRight: 16,
