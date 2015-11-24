@@ -9,7 +9,7 @@ var {
 var API_URL = "http://192.168.2.107:8080/api";
 var API_LOGIN = API_URL + "/user/login";
 var API_OBJECTS = API_URL+"/declare/";
-var API_PROJECT = API_URL + "/project";
+var API_PROJECT = API_URL + "/declare/project";
 
 var API_COVER_URL = "http://news-at.zhihu.com/api/4/start-image/1080*1776";
 var API_LATEST_URL = 'http://news-at.zhihu.com/api/4/news/latest';
@@ -274,6 +274,23 @@ DataRepository.prototype._GET = function(url, callback?: ?(error: ?Error, result
     });
 }
 
+DataRepository.prototype._POST = function(url: string, data: Object, callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._safeFetch(url,{
+    method: 'POST',
+    headers:{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json', 
+    },
+    body: JSON.stringify(data)
+  }).then((result)=>{
+    return result;
+  }).catch((error)=>{
+    console.log(error);
+  })
+}
+
+
+
 DataRepository.prototype.getObjects = function(type: string, action: string, page: int,
     callback?: ?(error: ?Error, result: ?Object) => void){
     return this._GET(API_OBJECTS+type+"/list/"+action+"?page="+page, callback);
@@ -281,6 +298,10 @@ DataRepository.prototype.getObjects = function(type: string, action: string, pag
 
 DataRepository.prototype.getProjects = function(callback?: ?(error: ?Error, result: ?Object) => void){
   return this._GET(API_PROJECT, callback);
+}
+
+DataRepository.prototype.setObject = function(type: string, data: Object, callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._POST(API_OBJECTS+type+"/", data, callback);
 }
 
 

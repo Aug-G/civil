@@ -25,7 +25,9 @@ var DataRepository = require('./DataRepository');
 var repository = DataRepository();
 var StoryDetail = require('./StoryDetail');
 var StoryAdd = require('./StoryAdd');
+var StoryAudit = require('./StoryAudit');
 var ProjectList = require('./ProjectList');
+
 
 var _navigator;
 BackAndroid.addEventListener('hardwareBackPress', function() {
@@ -84,13 +86,23 @@ var civil = React.createClass({
     } else if(route.name === 'add_story'){
       return (
         <View style={styles.container}>
-          <StoryAdd style={{flex:1}} navigator={navigationOperations} title={route.title}/>
+          <StoryAdd style={{flex:1}} navigator={navigationOperations} title={route.title} type={route.type}/>
+        </View>
+      );
+    }else if(route.name === 'audit_story'){
+      return (
+        <View style={styles.container}>
+          <StoryAudit style={{flex:1}} navigator={navigationOperations} title={route.title} type={route.type}/>
         </View>
       );
     }else if(route.name === 'project'){
       return (
         <View style={styles.container}>
-          <ProjectList loginFault={this.loginFault}  style={{flex:1}} navigator={navigationOperations} onSelectProjet={route.onSelectProjet}/>
+          <ProjectList 
+          loginFault={this.loginFault}  
+          style={{flex:1}} 
+          navigator={navigationOperations} 
+          onSelectProject={route.onSelectProject}/>
         </View>
       );
     }

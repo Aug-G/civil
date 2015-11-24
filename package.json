@@ -6,9 +6,8 @@
     "start": "react-native start"
   },
   "dependencies": {
-    "react-native": "^0.13.2",
+    "react-native": "^0.14.2",
     "react-native-drawer": "^1.7.0",
-    "react-native-dropdown": "0.0.4",
-    "react-native-dropdown-android": "0.0.4"
+    "react-native-dropdown": "0.0.4"
   }
 }

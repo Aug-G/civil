@@ -96,7 +96,6 @@ var StoryList = React.createClass({
       dataCache.dataForTheme[type] = newDataBlob;
       dataCache.lastPage[type] = page+1;
       isRefresh && this.props.onRefreshFinish && this.props.onRefreshFinish(); 
-      console.log(isRefresh ,this.state.isLoading, this.state.isLoadingTail, newDataBlob);
     }).catch((error) =>{
     	console.log(error);
       isRefresh && this.props.onRefreshFinish && this.props.onRefreshFinish();

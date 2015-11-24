@@ -53,6 +53,21 @@ var DetailToolbar = React.createClass({
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
     }
+
+    var detail = null;
+    if(this.props.onAudit){
+      var detail = (
+        <TouchableElement onPress={this.props.onAudit}>
+            <View style={styles.actionItem}>
+              <Image
+                style={styles.actionIcon}
+                source={require('image!ic_audit')}
+                resizeMode='contain' />
+            </View>
+          </TouchableElement>
+      );
+    }
+
     return(
       <View {...this.props}>
         <View style={styles.actionsContainer}>
@@ -68,6 +83,9 @@ var DetailToolbar = React.createClass({
           <View style={styles.actionItem}>
             <Text style={styles.title}>{this.props.title}</Text>
           </View>
+          <View style={{flex: 1}} />
+
+          {detail}
 
         </View>
 

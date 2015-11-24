@@ -29,7 +29,7 @@ var ProjectList = React.createClass({
 	},
 
 	componentDidMount: function(){
-
+		this.fetchProjects();
 	},
 
 	fetchProjects: function(){
@@ -38,9 +38,18 @@ var ProjectList = React.createClass({
 		});
 
 		repository.getProjects(this.props.loginFault)
-			.then((result) => {
-
+		.then((result) => {
+			this.setState({
+				isLoading:false,
+				dataSource: this.state.dataSource.cloneWithRows(result),
 			});
+		});
+	},
+	onRowSelect: function(project){
+		this.props.onSelectProject(project);
+		if (this.props.navigator) {
+      		this.props.navigator.pop();
+    	}
 	},
 
 	renderRow: function(
@@ -56,10 +65,10 @@ var ProjectList = React.createClass({
 		return (
       		<View>
         		<TouchableElement
-          		onPress={() => this.props.onSelectProjet(project)}
+          		onPress={() => this.onRowSelect(project)}
           		onShowUnderlay={highlightRowFunc}
           		onHideUnderlay={highlightRowFunc}>
-          		<View style={styles.projectItem}>
+          		<View style={styles.row}>
             		<Text style={styles.projectName}>
               			{project.name}
             		</Text>
@@ -126,6 +135,21 @@ var styles =  StyleSheet.create({
     fontSize: 16,
     marginLeft: 16,
     fontWeight:"bold"
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: 'white',
+    padding: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    marginVertical: 5,
+    borderColor: '#dddddd',
+    borderStyle: null,
+    borderWidth: 0.5,
+    borderRadius: 2,
   },
 
 });

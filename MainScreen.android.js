@@ -65,6 +65,7 @@ var MainScreen = React.createClass({
           this.props.navigator.push({
             name: 'add_story',
             title: this.state.theme.name,
+            type: this.state.theme.key,
           });
           break;
       }

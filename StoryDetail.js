@@ -15,8 +15,16 @@ var DetailToolbar = require('./DetailToolbar')
 
 var StoryDetail = React.createClass({
 
+	onAudit: function(){
+		this.props.navigator.push({
+			name: 'audit_story',
+			title: '审核',
+			story: this.props.story
+		});
+	},
+
 	render: function () {
-		var toolbar = <DetailToolbar navigator={this.props.navigator} style={styles.toolbar} story={this.props.story}/>;
+		var toolbar = <DetailToolbar navigator={this.props.navigator} style={styles.toolbar} onAudit={this.onAudit} story={this.props.story}/>;
 		return (
 			<View style={styles.container}>
 				{toolbar}
