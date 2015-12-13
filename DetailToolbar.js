@@ -54,6 +54,22 @@ var DetailToolbar = React.createClass({
       TouchableElement = TouchableNativeFeedback;
     }
 
+    var buttons = [];
+    if(this.props.buttons){
+      var num = this.props.buttons.length;
+      for(var i = 0; i < num; i++){
+        var button = this.props.buttons[i];
+        buttons.push(
+          <TouchableElement onPress={button.action}>
+            <View style={styles.actionItem}>
+              <Image
+                style={styles.actionIcon}
+                source={button.image}
+                resizeMode='contain' />
+            </View>
+          </TouchableElement>);
+      }
+    }
     var detail = null;
     if(this.props.onAudit){
       var detail = (
@@ -64,9 +80,10 @@ var DetailToolbar = React.createClass({
                 source={require('image!ic_audit')}
                 resizeMode='contain' />
             </View>
-          </TouchableElement>
+        </TouchableElement>
       );
     }
+
 
     return(
       <View {...this.props}>
@@ -86,6 +103,7 @@ var DetailToolbar = React.createClass({
           <View style={{flex: 1}} />
 
           {detail}
+          {buttons}
 
         </View>
 

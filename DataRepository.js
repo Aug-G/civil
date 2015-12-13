@@ -6,7 +6,11 @@ var {
   AsyncStorage,
 } = React;
 
-var API_URL = "http://192.168.2.107:8080/api";
+var FileUpload = require('NativeModules').FileUpload;
+
+var URL = "http://180.169.17.3:8081/civil";
+// var URL = "http://192.168.2.101:8080";
+var API_URL = URL+"/api";
 var API_LOGIN = API_URL + "/user/login";
 var API_OBJECTS = API_URL+"/declare/";
 var API_PROJECT = API_URL + "/declare/project";
@@ -29,6 +33,7 @@ function parseDateFromYYYYMMdd(str) {
   if (!str) return new Date();
   return new Date(str.slice(0, 4),str.slice(4, 6) - 1,str.slice(6, 8));
 }
+
 
 Date.prototype.yyyymmdd = function() {
   var yyyy = this.getFullYear().toString();
@@ -58,6 +63,8 @@ DataRepository.prototype._safeStorage = function(key: string) {
     });
   });
 };
+
+DataRepository.prototype.URL = URL;
 
 DataRepository.prototype._safeFetch = function(reqUrl: string, options?: Object) {
   console.log('reqUrl', reqUrl, options);
@@ -296,12 +303,61 @@ DataRepository.prototype.getObjects = function(type: string, action: string, pag
     return this._GET(API_OBJECTS+type+"/list/"+action+"?page="+page, callback);
 }
 
+DataRepository.prototype.getObject = function(type: string, id: int, callback?: ?(error: ?Error, result: ?Object) => void){
+    return this._GET(API_OBJECTS+type+"/"+id, callback);
+} 
+
+
 DataRepository.prototype.getProjects = function(callback?: ?(error: ?Error, result: ?Object) => void){
   return this._GET(API_PROJECT, callback);
 }
 
 DataRepository.prototype.setObject = function(type: string, data: Object, callback?: ?(error: ?Error, result: ?Object) => void){
   return this._POST(API_OBJECTS+type+"/", data, callback);
+}
+
+DataRepository.prototype.auditObject = function(type: string, id: int, data: Object, callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._POST(API_OBJECTS+type+"/audit/"+id, data, callback);
+}
+
+DataRepository.prototype.getFiles = function(type: string, id: int, callback?: ?(error: ?Error, result: ?Object) => void){
+  return this._GET(API_OBJECTS+type+"/"+id+"/files", callback);
+} 
+
+DataRepository.prototype.setObjectImage = function(type: string, id: int, uri: string, callback?: ?(error: ?Error, result: ?Object) => void){
+    var obj = {
+      uploadUrl: API_OBJECTS+type+"/upload/"+id,
+      method: 'POST', 
+      headers: {
+        'Accept': 'application/json',
+      },
+      fields: {
+
+      },
+      files: [
+        {
+          name: 'file', 
+          filename: uri.substring(uri.lastIndexOf('/')+1, uri.length), 
+          filepath: uri, 
+          filetype: 'image/png', 
+        },
+      ]
+  };
+
+  return new Promise((resolve, reject) =>{
+    console.log(FileUpload, obj);
+    FileUpload.upload(obj, function(err, result){
+      console.log(err, result);
+      if(err){
+        resolve(null);
+      }else{
+        resolve(result);
+      }
+    });
+  }).catch((error) => {
+    console.warn(error);
+    reject(err);
+  });
 }
 
 

@@ -12,7 +12,7 @@ var {
   View,
   TouchableOpacity,
 } = React
-
+var Lightbox = require('react-native-lightbox');
 var StoryItem = require('./StoryItem');
 var ThemesList = require('./ThemesList');
 var DataRepository = require('./DataRepository');
@@ -97,7 +97,6 @@ var StoryList = React.createClass({
       dataCache.lastPage[type] = page+1;
       isRefresh && this.props.onRefreshFinish && this.props.onRefreshFinish(); 
     }).catch((error) =>{
-    	console.log(error);
       isRefresh && this.props.onRefreshFinish && this.props.onRefreshFinish();
     });    
   },
@@ -160,6 +159,7 @@ var StoryList = React.createClass({
         title: story.title,
         name: 'story',
         story: story,
+        type: this.props.theme.key, 
       });
     // }
   },

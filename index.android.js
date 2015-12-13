@@ -18,6 +18,9 @@ var {
   ToastAndroid,
 } = React;
 
+var Lightbox = require('react-native-lightbox');
+
+
 var ToolbarAndroid = require("ToolbarAndroid");
 var MainScreen = require('./MainScreen');
 var Login = require('./Login');
@@ -27,6 +30,8 @@ var StoryDetail = require('./StoryDetail');
 var StoryAdd = require('./StoryAdd');
 var StoryAudit = require('./StoryAudit');
 var ProjectList = require('./ProjectList');
+var ResourceList = require('./ResourceList.js');
+var FullImage = require('./FullImage');
 
 
 var _navigator;
@@ -79,6 +84,7 @@ var civil = React.createClass({
         <View style={styles.container}>
           <StoryDetail
             style={{flex: 1}}
+            type={route.type}
             navigator={navigationOperations}
             story={route.story} />
         </View>
@@ -92,7 +98,7 @@ var civil = React.createClass({
     }else if(route.name === 'audit_story'){
       return (
         <View style={styles.container}>
-          <StoryAudit style={{flex:1}} navigator={navigationOperations} title={route.title} type={route.type}/>
+          <StoryAudit style={{flex:1}} navigator={navigationOperations} story={route.story} title={route.title} type={route.type}/>
         </View>
       );
     }else if(route.name === 'project'){
@@ -105,6 +111,25 @@ var civil = React.createClass({
           onSelectProject={route.onSelectProject}/>
         </View>
       );
+    }else if(route.name === 'resouce_list'){
+      return (
+        <View style={styles.container}>
+          <ResourceList 
+          type={route.type}
+          title={route.title}
+          story={route.story} 
+          loginFault={this.loginFault}  
+          navigator={navigationOperations} /> 
+        </View>
+      );
+    }else if(route.name === 'show_image'){
+      return (
+        <View style={styles.container}>
+          <FullImage 
+          navigator={navigationOperations} 
+          uri={route.uri}/> 
+        </View>
+      );
     }
   },
 
@@ -112,7 +137,8 @@ var civil = React.createClass({
    var initialRoute = {name: 'home'};
     if(this.state.isLogin){
       return (
-        <Navigator
+        <Lightbox.Navigator
+          ref="navigator"
           style={styles.container}
           initialRoute={initialRoute}
           configureScene={() => Navigator.SceneConfigs.FadeAndroid}

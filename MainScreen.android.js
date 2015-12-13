@@ -22,11 +22,7 @@ var SwipeRefreshLayoutAndroid = require('./SwipeRereshLayout');
 
 var DRAWER_REF = 'drawer';
 var DRAWER_WIDTH_LEFT = 56;
-var toolbarActions = [
-  {title: '管理', show: 'always',showWithText:true},
-  {title: '夜间模式', show: 'never'},
-  {title: '设置选项', show: 'never'},
-];
+
 
 var declareToolbar = [
   {title: 'declare', show: 'always', icon:require('image!ic_dashboard_white_24dp')},

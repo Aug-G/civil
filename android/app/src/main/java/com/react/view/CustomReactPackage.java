@@ -34,7 +34,7 @@ public class CustomReactPackage implements ReactPackage {
         List<ViewManager> result = new ArrayList<ViewManager>();
         result.add(new ReactWebViewManager());
         result.add(new ReactSwipeRefreshLayoutManager());
-
+        
         return result;
     }
 }

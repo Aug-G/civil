@@ -62,6 +62,7 @@ var ProjectList = React.createClass({
     	if (Platform.OS === 'android') {
       		TouchableElement = TouchableNativeFeedback;
     	}
+      
 		return (
       		<View>
         		<TouchableElement

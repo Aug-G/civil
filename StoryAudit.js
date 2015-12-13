@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react-native');
+var MK = require('react-native-material-kit');
 
 var {
 	View,
@@ -14,22 +15,31 @@ var {
 	TouchableNativeFeedback,
 	Platform
 } = React;
+
+var {
+	MKRadioButton,
+} = MK;
+
 var { UIImagePickerManager: ImagePickerManager } = NativeModules;
-var DetailToolbar = require('./DetailToolbar');
 var DetailToolbar = require('./DetailToolbar');
 var DataRepository = require('./DataRepository')
 var repository = new DataRepository();
 
-var StoryAdd = React.createClass({
+
+var StoryAudit = React.createClass({
+
 	getInitialState: function() {
-		var show_addr = this.props.type != 'struct' && this.props.type != 'complet';
+		var description = this.props.story.description;
+		var radioGroup = new MKRadioButton.Group();
+
 		return {
-			addr: '',
-			project:null,
-			imageURI: null,
 			errorMessage: '',
-			show_addr: show_addr};
+			radioGroup:radioGroup, 
+			status : 2,
+			description: description,
+		};
 	},
+
 
 	onSelectProject: function(project){
 		this.setState({
@@ -37,39 +47,8 @@ var StoryAdd = React.createClass({
 		});
 	},
 
-	_pickFromCamera: function() {
-     ImagePickerManager.launchCamera({}, (cancelled, response) => {
-       if (!cancelled) {
-         this.setState({ imageURI: response.uri });
-       }
-     });
-   },
-
-    _pickFromImageLibrary: function() {
-    ImagePickerManager.launchImageLibrary({}, (cancelled, response) => {
-        if (!cancelled) {
-        	this.setState({ imageURI: response.uri });
-      	}
-     });
-	},
-	onShowProject: function(){
-		this.props.navigator.push({
-			name: 'project',
-			onSelectProject: this.onSelectProject,
-		});
-	},
-	onAddObject: function(){
-		if (!this.state.project) {
-			this.setState({errorMessage: '请选择项目'});
-			return
-		};
-
-		if(!this.state.addr && this.state.show_addr){
-			this.setState({errorMessage: '请输入轴线位置'});
-			return
-		}
-
-		repository.setObject(this.props.type, {'addr': this.state.addr, 'project_id': this.state.project.id}).then((result) =>{
+	onAuditObject: function(){
+		repository.auditObject(this.props.type, this.props.story.id, {'status': this.state.status, 'description': this.state.description}, null).then((result) =>{
 			if(result){
 				if (this.props.navigator) {
       				this.props.navigator.pop();
@@ -81,12 +60,13 @@ var StoryAdd = React.createClass({
 
 	render: function(){
 		
-		var title = '添加'+this.props.title+'申报';
+		var title = this.props.title;
 		var toolbar = <DetailToolbar navigator={this.props.navigator} style={styles.toolbar} title={title}/>;
 		var TouchableElement = TouchableHighlight;
     	if (Platform.OS === 'android') {
       		TouchableElement = TouchableNativeFeedback;
     	}
+
 
     	var error = null; 
 		if (this.state.errorMessage){
@@ -94,33 +74,36 @@ var StoryAdd = React.createClass({
 						<Text style={styles.message}>{this.state.errorMessage}</Text>
 					</View>);
 		}
-		var addr = null;
-		if (this.state.show_addr) {
-			addr = (<TextInput 
-					style={styles.input}  
-					value={this.state.addr} 
-					onChangeText={(addr) => this.setState({addr})} 
-					placeholder="轴线位置"/>);
-		};
-	
+
 
 		return (
 			<View style={styles.container}>
 				{toolbar}
 				<View style={styles.content}>
 					{error}
-					<TouchableElement onPress={this.onShowProject}>	
-						<View style={styles.select}>
-							<Text style={styles.selectText}>{this.state.project ? '已选择：'+this.state.project.name : '请选择项目'}</Text>
-						</View>
-					</TouchableElement>
+					<TextInput 
+						style={styles.input}  
+						value={this.state.description} 
+						onChangeText={(description) => this.setState({description})} 
+						placeholder="详细信息"/>
 
-					{addr}
-					<TouchableElement onPress={this.onAddObject}>	
+					<View style={{top:10,flexDirection: 'row'}}>
+						<View style={styles.col}>
+            				<MKRadioButton group={this.state.radioGroup} onCheckedChange={(rb) => {if(rb.checked){this.setState({status: this.props.story.status <= 1? 2: 3});}}} checked={true} />
+            				<Text style={styles.legendLabel}>{this.props.story.status <= 1?'通过': '退回'}</Text>
+          				</View>
+          				<View style={styles.col}>
+            				<MKRadioButton group={this.state.radioGroup}  onCheckedChange={(rb) => {if(rb.checked){this.setState({status: this.props.story.status <= 1? 1: 4 });}}}  />
+            				<Text style={styles.legendLabel}>{this.props.story.status <= 1?'不通过': '归档:'}</Text>
+          				</View>
+					</View>
+										
+					<TouchableElement onPress={this.onAuditObject}>	
 						<View style={styles.select}>
 							<Text style={styles.selectText}>提 交</Text>
 						</View>
 					</TouchableElement>
+					
 					
 				</View>		
 				 
@@ -188,9 +171,21 @@ var styles =  StyleSheet.create({
 	color: '#FFF',
 	fontSize: 14,
   },
-	
+  col: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginLeft: 7, marginRight: 7,
+  },
+  legendLabel: {
+    textAlign: 'center',
+    color: '#666666',
+    marginTop: 10, marginBottom: 20,
+    fontSize: 12,
+    fontWeight: '300',
+  },
 
 });
 
 
-module.exports = StoryAdd;
+module.exports = StoryAudit;

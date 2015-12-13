@@ -12,7 +12,10 @@ import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.react.view.CustomReactPackage;
-
+import com.github.xinthink.rnmk.ReactMaterialKitPackage;
+import com.yoloci.fileupload.FileUploadPackage;
+import com.imagepicker.ImagePickerPackage;
+import fr.bamlab.rnimageresizer.ImageResizerPackage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,24 +24,25 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
     private ReactInstanceManager mReactInstanceManager;
     private ReactRootView mReactRootView;
 
-    private List<ActivityResultListener> mListeners = new ArrayList<>();
-
-    public void addActivityResultListener(ActivityResultListener listener){
-        mListeners.add(listener);
-    }
+     // declare package
+    private ImagePickerPackage mImagePicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mReactRootView = new ReactRootView(this);
-
+        mImagePicker = new ImagePickerPackage(this);
+        
         mReactInstanceManager = ReactInstanceManager.builder()
                 .setApplication(getApplication())
                 .setBundleAssetName("index.android.bundle")
                 .setJSMainModuleName("index.android")
                 .addPackage(new MainReactPackage())
                 .addPackage(new CustomReactPackage())
-                .addPackage(new ImagePickerPackage(this))
+                .addPackage(new ReactMaterialKitPackage())
+                .addPackage(new ImageResizerPackage())
+                .addPackage(new FileUploadPackage())
+                .addPackage(mImagePicker)
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
@@ -90,9 +94,10 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        for (ActivityResultListener listener : mListeners) {
-            listener.onActivityResult(requestCode, resultCode, data);
-        }
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // handle onActivityResult
+        mImagePicker.handleActivityResult(requestCode, resultCode, data);
     }
 }

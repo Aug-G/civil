@@ -8,6 +8,11 @@
   "dependencies": {
     "react-native": "^0.14.2",
     "react-native-drawer": "^1.7.0",
-    "react-native-dropdown": "0.0.4"
+    "react-native-fileupload": "^1.1.0",
+    "react-native-image-picker": "git+https://github.com/marcshilling/react-native-image-picker.git",
+    "react-native-image-resizer": "0.0.1",
+    "react-native-lightbox": "git+https://github.com/oblador/react-native-lightbox.git#navigator-refactor",
+    "react-native-material-kit": "^0.2.2",
+    "react-native-responsive-image": "^1.0.0"
   }
 }
