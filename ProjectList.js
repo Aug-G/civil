@@ -91,7 +91,7 @@ var ProjectList = React.createClass({
 			<ListView
           		ref="projectlistview"
           		dataSource={this.state.dataSource}
-          		renderRow={this.renderRow}
+          		renderRow={this.renderRow.bind(this)}
           		automaticallyAdjustContentInsets={false}
           		keyboardDismissMode="on-drag"
           		keyboardShouldPersistTaps={true}

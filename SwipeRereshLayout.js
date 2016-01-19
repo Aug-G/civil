@@ -19,7 +19,7 @@ var INNERVIEW_REF = 'innerView';
 
 var SwipeRefreshLayoutAndroid = React.createClass({
   propTypes: {
-    onRefresh: PropTypes.func,
+    onRefreshed: PropTypes.func,
   },
 
   mixins: [NativeMethodsMixin],
@@ -38,7 +38,7 @@ var SwipeRefreshLayoutAndroid = React.createClass({
         {...this.props}
         ref={RK_SWIPE_REF}
         style={styles.base}
-        onRefresh={this._onRefresh}>
+        onRefreshed={this._onRefresh}>
         {childrenWrapper}
       </AndroidSwipeRefreshLayout>
     );

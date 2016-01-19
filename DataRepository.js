@@ -6,10 +6,11 @@ var {
   AsyncStorage,
 } = React;
 
-var FileUpload = require('NativeModules').FileUpload;
+var RNNetworkingManager = require('react-native-networking');
 
 var URL = "http://180.169.17.3:8081/civil";
-// var URL = "http://192.168.2.101:8080";
+// var URL = "http://192.168.2./gradlew assembleRelease.101:8080";
+// var URL = "http://192.168.57.137:8080";
 var API_URL = URL+"/api";
 var API_LOGIN = API_URL + "/user/login";
 var API_OBJECTS = API_URL+"/declare/";
@@ -50,8 +51,9 @@ function DataRepository() { // Singleton pattern
   DataRepository.instance = this;
 }
 
-DataRepository.prototype._safeStorage = function(key: string) {
-  return new Promise((resolve, reject) => {
+
+ DataRepository.prototype._safeStorage = function(key: string) {
+   return new Promise((resolve, reject) => {
     AsyncStorage.getItem(key, (error, result) => {
       var retData = JSON.parse(result);
       if (error) {
@@ -63,7 +65,6 @@ DataRepository.prototype._safeStorage = function(key: string) {
     });
   });
 };
-
 DataRepository.prototype.URL = URL;
 
 DataRepository.prototype._safeFetch = function(reqUrl: string, options?: Object) {
@@ -79,154 +80,6 @@ DataRepository.prototype._safeFetch = function(reqUrl: string, options?: Object)
         resolve(null);
       });
   });
-};
-
-DataRepository.prototype.getCover = function() {
-  return this._safeStorage(KEY_COVER);
-}
-
-DataRepository.prototype.updateCover = function() {
-  fetch(API_COVER_URL)
-    .then((response) => response.json())
-    .then((responseData) => {
-      AsyncStorage.setItem(KEY_COVER, JSON.stringify(responseData));
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .done();
-}
-
-DataRepository.prototype.fetchStories = function(date?: Date,
-  callback?: ?(error: ?Error, result: ?Object) => void
-) {
-  var reqUrl;
-  var topData = null;
-  if (!date) {
-    date = new Date();
-    reqUrl = API_LATEST_URL;
-    topData = this._safeStorage(KEY_THEME_TOPDATA+ '0');
-  } else {
-    var beforeDate = new Date(date);
-    beforeDate.setDate(date.getDate() + 1);
-    reqUrl = API_HOME_URL + beforeDate.yyyymmdd();
-  }
-
-  var localStorage = this._safeStorage(KEY_HOME_LIST + date.yyyymmdd());
-
-  var networking = this._safeFetch(reqUrl);
-
-  var merged = new Promise((resolve, reject) => {
-    Promise.all([localStorage, networking, topData])
-      .then((values) => {
-        var error, result;
-        result = this._mergeReadState(values[0], values[1]);
-        if (!result) {
-          error = new Error('Load story error');
-        }
-        callback && callback(error, result);
-        if (error) {
-          reject(error);
-        } else {
-          if (values[1] && values[1].top_stories) {
-            result.topData = values[1].top_stories;
-          } else {
-            result.topData = values[2];
-          }
-          resolve(result);
-        }
-      });
-  });
-  return merged;
-};
-
-DataRepository.prototype.fetchThemeStories = function(themeId: number, lastID?: string,
-  callback?: ?(error: ?Error, result: ?Object) => void
-) {
-  // Home story list
-  if (themeId === 0) {
-    var date;
-    if (lastID) {
-      date = parseDateFromYYYYMMdd(lastID);
-      date.setDate(date.getDate() - 1);
-    }
-    return this.fetchStories(date, callback);
-  }
-
-  // Stroy list by theme
-  var isRefresh = !lastID;
-  var localStorage = isRefresh ? this._safeStorage(KEY_THEME_LIST + themeId) : null;
-
-  var reqUrl = API_THEME_URL + themeId;
-  var topData = null;
-  if (lastID) {
-    reqUrl += '/before/' + lastID;
-  } else {
-    topData = this._safeStorage(KEY_THEME_TOPDATA + themeId);
-  }
-
-  var networking = this._safeFetch(reqUrl);
-
-  var merged = new Promise((resolve, reject) => {
-    Promise.all([localStorage, networking, topData])
-      .then((values) => {
-        var error, result;
-        result = this._mergeReadState(values[0], values[1]);
-        if (!result) {
-          error = new Error('Load story by theme error');
-        }
-        callback && callback(error, result);
-        if (error) {
-          reject(error);
-        } else {
-          var topDataRet;
-          if (values[1] && values[1].background) {
-            topDataRet = {};
-            topDataRet.description = values[1].description;
-            topDataRet.background = values[1].background;
-            topDataRet.editors = values[1].editors;
-          } else {
-            topDataRet = values[2];
-          }
-          result.topData = topDataRet;
-          resolve(result);
-        }
-      });
-  });
-
-  return merged;
-};
-
-DataRepository.prototype.saveStories = function(themeList: object, topData: object,
-  callback?: ?(error: ?Error, result: ?Object) => void
-) {
-  var homeList = themeList[0];
-  var keyValuePairs = [];
-
-  for (var date in homeList) {
-   if (homeList.hasOwnProperty(date)) {
-     //console.log(date, homeData[date]);
-     keyValuePairs.push([KEY_HOME_LIST + date, JSON.stringify({date: date, stories: homeList[date]})]);
-   }
-  }
-
-  for (var key in themeList) {
-   if (themeList.hasOwnProperty(key)) {
-     //console.log(key, data[key]);
-     if (key !== '0') {
-       keyValuePairs.push([KEY_THEME_LIST + key, JSON.stringify(themeList[key])]);
-     }
-   }
-  }
-
-  for (var theme in topData) {
-    if (topData.hasOwnProperty(theme)) {
-      //console.log(theme, topData[key]);
-      keyValuePairs.push([KEY_THEME_TOPDATA + theme, JSON.stringify(topData[theme])]);
-    }
-  }
-
-  AsyncStorage.multiSet(keyValuePairs, callback);
 };
 
 
@@ -325,38 +178,33 @@ DataRepository.prototype.getFiles = function(type: string, id: int, callback?: ?
 } 
 
 DataRepository.prototype.setObjectImage = function(type: string, id: int, uri: string, callback?: ?(error: ?Error, result: ?Object) => void){
-    var obj = {
-      uploadUrl: API_OBJECTS+type+"/upload/"+id,
-      method: 'POST', 
-      headers: {
-        'Accept': 'application/json',
-      },
-      fields: {
+  var options = {
+    method: 'POST',
+    uri: uri,
+    fileName: uri.substring(uri.lastIndexOf('/')+1, uri.length),
+    mimeType: 'image/jpg',
+    headers: {
+      'Accept': 'application/json'
+    },
+    data: {
 
-      },
-      files: [
-        {
-          name: 'file', 
-          filename: uri.substring(uri.lastIndexOf('/')+1, uri.length), 
-          filepath: uri, 
-          filetype: 'image/png', 
-        },
-      ]
+    }
   };
 
   return new Promise((resolve, reject) =>{
-    console.log(FileUpload, obj);
-    FileUpload.upload(obj, function(err, result){
-      console.log(err, result);
+    console.log(uri);
+    RNNetworkingManager.requestFile(API_OBJECTS+type+"/upload/"+id, options, (err, res) => {
+      console.log(err, res);
       if(err){
         resolve(null);
-      }else{
-        resolve(result);
+      }
+      else{
+        resolve(res);
       }
     });
   }).catch((error) => {
-    console.warn(error);
-    reject(err);
+      console.warn(error);
+      reject(err);
   });
 }
 

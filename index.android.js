@@ -4,7 +4,6 @@
  */
 'use strict';
 
-
 var React = require('react-native');
 var {
   AppRegistry,
@@ -32,6 +31,8 @@ var StoryAudit = require('./StoryAudit');
 var ProjectList = require('./ProjectList');
 var ResourceList = require('./ResourceList.js');
 var FullImage = require('./FullImage');
+
+var PinchImage = require('./PinchImage');
 
 
 var _navigator;
@@ -163,5 +164,6 @@ var styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
 
 AppRegistry.registerComponent('civil', () => civil);

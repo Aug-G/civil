@@ -11,6 +11,7 @@ var {
   ToolbarAndroid,
   ToastAndroid,
   BackAndroid,
+  PullToRefreshViewAndroid,
   TouchableOpacity,
   Dimensions,
 } = React;
@@ -40,6 +41,7 @@ var MainScreen = React.createClass({
       toolbarActions: declareToolbar,
       action: 'declare',
       theme: {'name':'底板', 'icon': 'image!home', 'key': 'floor'},
+      isRefreshing: false,
     });
   },
   onSelectTheme: function(theme) {
@@ -98,13 +100,11 @@ var MainScreen = React.createClass({
             actions={this.state.toolbarActions}
             onIconClicked={() => this.refs[DRAWER_REF].openDrawer()}
             onActionSelected={this.onActionSelected} />
-          <SwipeRefreshLayoutAndroid
-            ref={(swipeRefreshLayout) => { this.swipeRefreshLayout = swipeRefreshLayout; }}
-            onRefresh={this.onRefresh}>
-            <StoryList theme={this.state.theme} action={this.state.action} loginFault={this.props.loginFault} navigator={this.props.navigator}
+         
+            <StoryList theme={this.state.theme} 
+              action={this.state.action} loginFault={this.props.loginFault} navigator={this.props.navigator}
               onRefreshFinish={this.onRefreshFinish}/>
-          </SwipeRefreshLayoutAndroid>
-
+       
         </View>
       </DrawerLayoutAndroid>
 

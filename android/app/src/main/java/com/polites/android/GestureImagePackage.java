@@ -1,24 +1,19 @@
-package com.react.view;
+package com.polites.android;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.shell.MainReactPackage;
 import com.facebook.react.uimanager.ViewManager;
-import com.react.view.swiperefresh.ReactSwipeRefreshLayoutManager;
-import com.react.view.webview.ReactWebViewManager;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Jing on 15/9/22.
+ * Created by august on 15/12/22.
  */
-public class CustomReactPackage implements ReactPackage {
-
+public class GestureImagePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         return Collections.emptyList();
@@ -31,10 +26,8 @@ public class CustomReactPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        List<ViewManager> result = new ArrayList<ViewManager>();
-        result.add(new ReactWebViewManager());
-        result.add(new ReactSwipeRefreshLayoutManager());
-        
-        return result;
+        return Arrays.<ViewManager>asList(
+                new GestureImageManager()
+        );
     }
 }

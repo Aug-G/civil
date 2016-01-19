@@ -78,7 +78,7 @@ var Login = React.createClass({
 						value = {this.state.password}
 						onChangeText = {(password) => this.setState({password})}  />
 
-					<TouchableElement onPress={() => this.onLogin()} >
+					<TouchableElement onPress={this.onLogin} >
 					 	<View style={styles.login}>
 					 		<Text style={styles.loginText}>登录</Text>
 					 	</View>

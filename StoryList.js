@@ -12,7 +12,7 @@ var {
   View,
   TouchableOpacity,
 } = React
-var Lightbox = require('react-native-lightbox');
+
 var StoryItem = require('./StoryItem');
 var ThemesList = require('./ThemesList');
 var DataRepository = require('./DataRepository');
@@ -58,9 +58,6 @@ var StoryList = React.createClass({
       dataSource: dataSource,
       headerDataSource: headerDataSource,
     };
-  },
-  componentWillUnmount: function() {
-    repository.saveStories(dataCache.dataForTheme, dataCache.topDataForTheme);
   },
   componentDidMount: function() {
     this.fetchStories(this.props.theme, true);

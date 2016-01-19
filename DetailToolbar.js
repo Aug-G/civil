@@ -55,10 +55,10 @@ var DetailToolbar = React.createClass({
     }
 
     var buttons = [];
-    if(this.props.buttons){
-      var num = this.props.buttons.length;
+    if(this.props.action_buttons){
+      var num = this.props.action_buttons.length;
       for(var i = 0; i < num; i++){
-        var button = this.props.buttons[i];
+        var button = this.props.action_buttons[i];
         buttons.push(
           <TouchableElement onPress={button.action}>
             <View style={styles.actionItem}>

@@ -5,37 +5,39 @@ var React = require('react-native');
 var {
 	View,
 	Image,
-	StyleSheet
+	StyleSheet,
+  Dimensions,
 } = React;
 
-
-var DetailToolbar = require('./DetailToolbar')
-var Lightbox = require('react-native-lightbox');
-
+var DetailToolbar = require('./DetailToolbar');
+var GestureImage = require('./modules/GestureImage');
+var PinchImage = require('./PinchImage');
+var DEVICE_HEIGHT = Dimensions.get('window').height;
+var DEVICE_WIDTH = Dimensions.get('window').width;
 var FullImage = React.createClass({
 
-
 	render: function() {
-		console.log(this.props.uri);
 		var toolbar = <DetailToolbar navigator={this.props.navigator} style={styles.toolbar} />;
-	
-      return (
-      <Lightbox navigator={this.props.navigator}>
-        <Image
-          source={{ uri: this.props.uri}}
-        />
-      </Lightbox>
-    );
+    var {height, width} = Dimensions.get('window');
 
     return (
-
 			<View style={{flex:1}}>
-
 				{toolbar}
-			<View style={styles.imageContainer}>
-        		<Image style={styles.image} source={{uri: this.props.uri}} />
-      		</View>
-      		</View>	
+			  <View style={styles.imageContainer}>
+          <PinchImage 
+            style={{ height: height, width: width}}
+            toStyle={(layout) => {
+            return {
+              top: layout.y,
+              left: layout.x,
+              width: layout.width,
+              height: layout.height,
+            }
+          }}
+          onError={console.error.bind(console)}
+          uri={this.props.uri} />
+        </View> 
+      </View>	
 
 		);
 	}
@@ -44,7 +46,7 @@ var FullImage = React.createClass({
 
 var styles =  StyleSheet.create({
   toolbar:{
-    backgroundColor: '#00a2ed',
+    backgroundColor: '#424242',
     height: 56,
     position: 'absolute',
     left: 0,
@@ -53,13 +55,12 @@ var styles =  StyleSheet.create({
     top: 0,
   },
   imageContainer: {
-    flex: 1,
-    alignItems: 'stretch',
-    top: 56
-
+    marginTop: 56,
+    backgroundColor:'#424242'
   },
   image: {
-    flex: 1,
+    width: DEVICE_WIDTH,
+    height: DEVICE_HEIGHT,
   }
 
 });

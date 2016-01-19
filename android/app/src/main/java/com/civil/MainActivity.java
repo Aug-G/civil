@@ -1,7 +1,6 @@
 package com.civil;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
@@ -11,20 +10,19 @@ import com.facebook.react.ReactRootView;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.react.view.CustomReactPackage;
+
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
-import com.yoloci.fileupload.FileUploadPackage;
-import com.imagepicker.ImagePickerPackage;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Intent; 
+import com.imagepicker.ImagePickerPackage; 
+import com.learnium.RNNetworkingManager.*;
+import com.polites.android.GestureImagePackage;
+
 
 public class MainActivity extends Activity implements DefaultHardwareBackBtnHandler {
 
     private ReactInstanceManager mReactInstanceManager;
     private ReactRootView mReactRootView;
-
-     // declare package
     private ImagePickerPackage mImagePicker;
 
     @Override
@@ -32,16 +30,16 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
         super.onCreate(savedInstanceState);
         mReactRootView = new ReactRootView(this);
         mImagePicker = new ImagePickerPackage(this);
-        
+
         mReactInstanceManager = ReactInstanceManager.builder()
                 .setApplication(getApplication())
                 .setBundleAssetName("index.android.bundle")
                 .setJSMainModuleName("index.android")
                 .addPackage(new MainReactPackage())
-                .addPackage(new CustomReactPackage())
                 .addPackage(new ReactMaterialKitPackage())
                 .addPackage(new ImageResizerPackage())
-                .addPackage(new FileUploadPackage())
+                .addPackage(new RNNetworkingManagerModule())
+                .addPackage(new GestureImagePackage())
                 .addPackage(mImagePicker)
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
@@ -89,7 +87,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
         super.onResume();
 
         if (mReactInstanceManager != null) {
-            mReactInstanceManager.onResume(this);
+            mReactInstanceManager.onResume(this, this);
         }
     }
 

@@ -22,14 +22,16 @@ var DataRepository = require('./DataRepository');
 var repository = new DataRepository();
 var UIImagePickerManager = require('NativeModules').UIImagePickerManager;
 
+// var PinchImage = require('./PinchImage');
+
 var image_options = {
   title: '选择图片', 
   cancelButtonTitle: '取消',
-  takePhotoButtonTitle: '从相机里选择', 
+  takePhotoButtonTitle: '照相', 
   chooseFromLibraryButtonTitle: '从图库里选择',
-  maxWidth: 100,
-  maxHeight: 100,
-  quality: 0.2,
+  maxWidth: 768,
+  maxHeight: 1280,
+  quality: 0.5,
   allowsEditing: false, // Built in iOS functionality to resize/reposition the image
   noData: false, // Disables the base64 `data` field from being generated (greatly improves performance on large photos)
   storageOptions: { // if this key is provided, the image will get saved in the documents directory (rather than a temporary directory)
@@ -64,12 +66,10 @@ var ResourceList = React.createClass({
       result.map(function(item){
         item.url = repository.URL+item.url;
       });
-      console.log(result);
 			this.setState({
 				isLoading: false,
 				dataSource: this.state.dataSource.cloneWithRows(result),
 			})
-			console.log('end');
 		});
 
 	},
@@ -85,8 +85,6 @@ var ResourceList = React.createClass({
     	)
 	},
 	_showImage: function(uri){
-
-		console.log(uri);
 		this.props.navigator.push({
 			name: 'show_image',
 			uri: uri,
@@ -97,20 +95,12 @@ var ResourceList = React.createClass({
     _pickImage: function() {
     UIImagePickerManager.showImagePicker(image_options, (cancelled, response) => {
         if (!cancelled) {
-          this.setState({isLoading: true});        
-          console.log(response);
-          var fileType = response.uri.substring(response.uri.lastIndexOf('.')+1, response.uri.length);
-          if(fileType==='jpg' || fileType==='jpeg'){
-            ImageResizer.createResizedImage(response.uri, 768, 1024, 'JPEG', 10).then((resizedImageUri) =>{
-              repository.setObjectImage(this.props.type, this.props.story.id, resizedImageUri).then((result) => {
+          this.setState({isLoading: true});
+
+          repository.setObjectImage(this.props.type, this.props.story.id, response.uri).then((result) => {
                 this.fetchFiles(); 
-               }).done();
-            })
-          }else{
-        	  repository.setObjectImage(this.props.type, this.props.story.id, response.uri).then((result) => {
-        		  this.fetchFiles();	
-        	  }).done();
-          }
+          }).done();
+          
       	}
      });
 	},
@@ -125,25 +115,27 @@ var ResourceList = React.createClass({
       		TouchableElement = TouchableNativeFeedback;
     	}
 
+ 
+                // <Lightbox.Image
+                //   swipeToDismiss={false}
+                //   underlayColor="white"
+                //   lightboxResizeMode="cover"
+                //   navigator={this.props.navigator}
+                //   style={styles.cellImage}
+                //   activeProps={{ resizeMode: 'contain', style: { flex: 1 }}}
+                //   source={{uri: image.url}} />
+           
+
 		return(
+      <TouchableElement onPress={this._showImage.bind(this, image.url)}>
           		<View style={styles.row}>
-
-                <Lightbox.Image
-                  swipeToDismiss  ={false}
-                  underlayColor="white"
-                  lightboxResizeMode="cover"
-                  navigator={this.props.navigator}
-                  maximumZoomScale={2} 
-                  style={styles.cellImage}
-                  activeProps={{ resizeMode: 'cover', style: { flex: 1 }}}
-                  source={{uri: image.url}} />
-
-            		<View style={styles.column}>
-            			<Text style={styles.cellText}>{image.name}</Text>
-            			<Text style={styles.cellDesc}>时间：{image.uploadTime}</Text>
-          			</View>
-
+                 <Image source={{uri:image.url}} style={styles.cellImage} />
+             		 <View style={styles.column}>
+            			 <Text style={styles.cellText}>{image.name}</Text>
+            			 <Text style={styles.cellDesc}>时间：{image.uploadTime}</Text>
+          			 </View>
           		</View>
+      </TouchableElement>
 		);
 
 	},
@@ -156,7 +148,7 @@ var ResourceList = React.createClass({
 
 	    var buttons = [{action: this._pickImage, image:require('image!ic_add_circle_outline_white_24dp')}]; 
 
-	    var toolbar = <DetailToolbar navigator={this.props.navigator} title={this.props.title} style={styles.toolbar} buttons={buttons}/>;
+	    var toolbar = <DetailToolbar navigator={this.props.navigator} title={this.props.title} style={styles.toolbar} action_buttons={buttons}/>;
 
 	    var content = this.state.dataSource.getRowCount() === 0 ?
       		<View style={styles.centerEmpty}>
@@ -167,15 +159,13 @@ var ResourceList = React.createClass({
 				{toolbar}
 				<ListView
           		ref="resourcelistview"
-
           		dataSource={this.state.dataSource}
           		renderRow={this.renderRow}
-          		renderHeader={this.renderHeader}
           		automaticallyAdjustContentInsets={false}
           		keyboardDismissMode="on-drag"
           		keyboardShouldPersistTaps={true}
           		showsVerticalScrollIndicator={false}
-          		style={styles.list}/>
+              style={styles.list}/>
 			</View>;
 		return content;
 	}
@@ -201,7 +191,7 @@ var styles =  StyleSheet.create({
   },
 
   list:{
-  	top: 56,
+  	marginTop: 56,
   	flex: 1,
   	backgroundColor: 'white',
   },
